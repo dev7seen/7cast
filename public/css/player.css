@@ -1,0 +1,367 @@
+/* ==========================================================================
+   7CAST Live Video Player Stylesheet
+   Faithful replication of the custom player UI from user reference:
+   - Amber "TRANSCODING H.264 ⚡" badge
+   - Crimson "ON AIR ⏺" pulsing badge
+   - Rounded 20px glassmorphism frame
+   - Bottom-left Fullscreen button
+   - Bottom-right Refresh, Mute, Play/Pause control buttons
+   ========================================================================== */
+
+.custom-player-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 25px rgba(99, 102, 241, 0.15);
+  aspect-ratio: 16 / 9;
+  user-select: none;
+}
+
+.custom-player-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: #000;
+}
+
+/* Player Overlays */
+.player-top-overlay {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* Transcoding Badge (Matching Reference Screenshot) */
+.player-badge-transcode {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f59e0b;
+  color: #050811;
+  font-family: var(--font-family);
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45);
+  white-space: nowrap;
+}
+.player-badge-transcode.direct {
+  background-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
+}
+.player-badge-transcode svg,
+.player-badge-transcode .bolt-icon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* ON AIR Badge (Matching Reference Screenshot) */
+.player-badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #e11d48;
+  color: #ffffff;
+  font-family: var(--font-family);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 16px rgba(225, 29, 72, 0.55);
+  white-space: nowrap;
+}
+
+.player-badge-live.offline {
+  background-color: rgba(71, 85, 105, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  color: #cbd5e1;
+}
+
+.player-badge-live.starting {
+  background-color: #d97706;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.45);
+  color: #ffffff;
+}
+
+.player-badge-live .live-dot {
+  width: 9px;
+  height: 9px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ffffff;
+  animation: pulse-dot 1.4s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.player-badge-live.offline .live-dot {
+  background-color: #94a3b8;
+  box-shadow: none;
+  animation: none;
+}
+
+/* Video Specs Chip */
+.player-badge-specs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  letter-spacing: 0.4px;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.85); opacity: 0.7; box-shadow: 0 0 6px #ffffff; }
+  50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 14px #ffffff; }
+  100% { transform: scale(0.85); opacity: 0.7; box-shadow: 0 0 6px #ffffff; }
+}
+
+/* Bottom Controls Overlay Bar */
+.player-bottom-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 20px 20px 20px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+  z-index: 20;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Frosted Glass Control Buttons */
+.player-ctrl-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 41, 59, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f8fafc;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.player-ctrl-btn:hover {
+  background: rgba(51, 65, 85, 0.85);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+.player-ctrl-btn:active {
+  transform: translateY(0);
+}
+
+.player-ctrl-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* Left & Right Button Groups */
+.player-left-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.player-right-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Mute button active red accent */
+.player-ctrl-btn.muted {
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* Player Buffering / Loading State */
+.player-loading-spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 15;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.25s ease;
+}
+.player-loading-spinner.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spinner-ring {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #f59e0b;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Fullscreen mode adjustments */
+.custom-player-wrapper:fullscreen {
+  border-radius: 0;
+  border: none;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Player Top Left: Mode Toggle (Live RTMP Output vs Raw Source) */
+.player-top-left-overlay {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 25;
+}
+
+.player-mode-toggle {
+  display: inline-flex;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  padding: 3px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  gap: 4px;
+}
+
+.mode-pill {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.mode-pill:hover {
+  color: #f8fafc;
+}
+
+.mode-pill.active {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+}
+
+.mode-pill.active.live-pill {
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  box-shadow: 0 2px 10px rgba(225, 29, 72, 0.45);
+}
+
+.live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  animation: pulse-dot 1.2s infinite ease-in-out;
+}
+
+/* Offline Screen inside Player */
+.player-offline-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: radial-gradient(circle at center, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  z-index: 18;
+}
+
+.offline-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+  animation: float-icon 3s ease-in-out infinite;
+}
+
+@keyframes float-icon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.offline-title {
+  color: #f8fafc;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.offline-desc {
+  color: #94a3b8;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  max-width: 440px;
+  margin-bottom: 1.5rem;
+}
+
+.offline-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}

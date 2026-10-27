@@ -1,0 +1,25 @@
+{
+  "name": "7cast",
+  "version": "1.0.0",
+  "description": "7CAST - لوحة إعادة بث عربية احترافية متعددة المنصات (RTMP/RTMPS) مع ترميز ذكي",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^2.5.0",
+    "ws": "^8.18.0"
+  },
+  "keywords": [
+    "7cast",
+    "restream",
+    "rtmp",
+    "rtmps",
+    "hls",
+    "ffmpeg",
+    "transcoder"
+  ],
+  "author": "7SEEN",
+  "license": "MIT"
+}

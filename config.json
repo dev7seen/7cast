@@ -1,0 +1,11 @@
+{
+  "port": 7878,
+  "host": "0.0.0.0",
+  "authPassword": "",
+  "isConfigured": false,
+  "sessionSecret": "7cast_secure_jwt_token_key_2026",
+  "ffmpegPath": "ffmpeg",
+  "ffprobePath": "ffprobe",
+  "serverName": "7CAST",
+  "version": "1.0.0"
+}

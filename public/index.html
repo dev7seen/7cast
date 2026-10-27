@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>7CAST - منصة إعادة البث المتعدد الذكية</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/7cast-logo-svg.svg">
+  
+  <!-- Main Stylesheets -->
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/player.css">
+  
+  <!-- Player Core Libraries (Local Bundled) -->
+  <script src="/js/libs/mpegts.js"></script>
+  <script src="/js/libs/hls.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Main Content Wrapper -->
+    <div class="app-main-content">
+      <!-- Top Header -->
+      <header class="app-header">
+        <div class="header-inner">
+          <!-- Right: Mobile Toggle, Brand Logo & Navigation Tabs -->
+          <div class="header-brand-nav-group">
+            <button type="button" class="mobile-menu-toggle" id="btnToggleMobileDrawer" aria-label="فتح القائمة الجانبية">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+
+            <a href="#" class="header-brand-wrap" data-view="dashboard" title="7CAST Live Platform">
+              <img src="/assets/7cast-logo-svg.svg" alt="7CAST" class="header-brand-logo-img">
+            </a>
+
+            <div class="header-v-divider"></div>
+
+            <nav class="header-nav-tabs">
+              <button type="button" class="header-nav-btn active" data-view="dashboard" id="navItemDashboard">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="nav-label">اللوحة الرئيسية</span>
+              </button>
+              <button type="button" class="header-nav-btn" data-view="logo-editor" id="navItemLogoEditor">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/></svg>
+                <span class="nav-label">محرر الشعار</span>
+              </button>
+            </nav>
+          </div>
+
+          <!-- Center: Realtime System Metrics Bar -->
+          <div class="sys-metrics-bar" id="sysMetricsBar">
+            <div class="metric-pill">
+              <span class="live-indicator-dot" id="liveDot"></span>
+              <span>البث النشط:</span>
+              <b id="activeStreamsCount">0</b>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric-pill" id="pillCpu" title="استهلاك المعالج CPU">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="12" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/><line x1="12" y1="16" x2="12" y2="20"/></svg>
+              <span>المعالج:</span>
+              <b id="sysCpuUsage" style="color: #10b981;">0%</b>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric-pill" id="pillRam" title="استهلاك الذاكرة RAM">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="10" y1="12" x2="10.01" y2="12"/><line x1="14" y1="12" x2="14.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/></svg>
+              <span>الذاكرة:</span>
+              <b id="sysRamUsage" style="color: #38bdf8;">0 GB / 0 GB (0%)</b>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric-pill" id="pillUptime" title="وقت تشغيل الجهاز">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>التشغيل:</span>
+              <b id="sysUptime" style="color: #f59e0b;">--</b>
+            </div>
+          </div>
+
+          <!-- Left: Header Action Buttons & Logout -->
+          <div class="header-actions">
+            <button class="btn btn-primary" id="btnOpenAddChannelModal">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>إضافة قناة جديدة</span>
+            </button>
+
+            <button class="btn btn-secondary btn-icon-only" id="btnOpenBackupModal" title="النسخ الاحتياطي والاستيراد">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            </button>
+
+            <button class="btn btn-secondary btn-icon-only logout-btn" id="btnLogout" title="تسجيل الخروج">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Mobile Slide-Out Drawer (Sidebar) -->
+      <div class="mobile-drawer-overlay" id="mobileDrawerOverlay">
+        <div class="mobile-drawer-panel">
+          <div class="drawer-header">
+            <img src="/assets/7cast-logo-svg.svg" alt="7CAST" class="drawer-brand-img">
+            <button type="button" class="drawer-close-btn" id="btnCloseMobileDrawer" aria-label="إغلاق">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <div class="drawer-quick-action">
+            <button type="button" class="btn btn-primary" id="btnDrawerAddChannel">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>إضافة قناة جديدة</span>
+            </button>
+          </div>
+
+          <div class="drawer-nav-section">
+            <button type="button" class="drawer-nav-item active" data-view="dashboard" id="drawerNavDashboard">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>اللوحة الرئيسية</span>
+            </button>
+            <button type="button" class="drawer-nav-item" data-view="logo-editor" id="drawerNavLogoEditor">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/></svg>
+              <span>محرر الشعار</span>
+            </button>
+          </div>
+
+          <div class="drawer-metrics-card">
+            <div class="drawer-metrics-title">موارد الخادم المباشرة</div>
+            <div class="drawer-metrics-grid">
+              <div class="drawer-metric-item">
+                <span class="drawer-metric-label">البث النشط</span>
+                <span class="drawer-metric-val" id="drawerActiveStreams">0</span>
+              </div>
+              <div class="drawer-metric-item">
+                <span class="drawer-metric-label">المعالج CPU</span>
+                <span class="drawer-metric-val" id="drawerCpuUsage" style="color: #10b981;">0%</span>
+              </div>
+              <div class="drawer-metric-item">
+                <span class="drawer-metric-label">الذاكرة RAM</span>
+                <span class="drawer-metric-val" id="drawerRamUsage" style="color: #38bdf8;">0%</span>
+              </div>
+              <div class="drawer-metric-item">
+                <span class="drawer-metric-label">التشغيل</span>
+                <span class="drawer-metric-val" id="drawerUptime" style="color: #f59e0b;">--</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="drawer-footer-actions">
+            <button type="button" class="btn btn-secondary" id="btnDrawerBackup" title="النسخ الاحتياطي">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>نسخ احتياطي</span>
+            </button>
+            <button type="button" class="btn btn-secondary logout-btn" id="btnDrawerLogout" title="خروج">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span>خروج</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Views Wrapper -->
+      <main class="views-wrapper">
+        <!-- ==================== VIEW 1: DASHBOARD ==================== -->
+        <section class="app-view active" id="viewDashboard">
+          <!-- Top Statistics Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-info">
+                <h4>إجمالي القنوات</h4>
+                <div class="stat-value" id="statTotalChannels">0</div>
+                <div class="stat-sub">قنوات مجهزة للبث</div>
+              </div>
+              <div class="stat-icon-wrap tv">
+                <span class="ui-icon icon-lg icon-tv"></span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <h4>البث المباشر النشط</h4>
+                <div class="stat-value" style="color: #10b981;" id="statActiveStreams">0</div>
+                <div class="stat-sub">إعادة بث جارية في الوقت الحقيقي</div>
+              </div>
+              <div class="stat-icon-wrap rocket">
+                <span class="ui-icon icon-lg icon-rocket"></span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <h4>المخارج الموزعة</h4>
+                <div class="stat-value" style="color: #38bdf8;" id="statTotalDestinations">0</div>
+                <div class="stat-sub">منصات RTMP & RTMPS متصلة</div>
+              </div>
+              <div class="stat-icon-wrap video">
+                <span class="ui-icon icon-lg icon-video"></span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <h4>محرك الترميز (FFmpeg)</h4>
+                <div class="stat-value" style="font-size: 1.4rem; color: #f59e0b;" id="statFfmpegVer">جاهز</div>
+                <div class="stat-sub">ترميز ذكي تلقائي H.264/AAC</div>
+              </div>
+              <div class="stat-icon-wrap flash">
+                <span class="ui-icon icon-lg icon-flash"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Channels Management Section -->
+          <section class="channels-section">
+            <div class="section-header">
+              <div class="section-title">
+                <span>قنوات البث المباشر</span>
+                <span class="badge" id="channelsCountBadge">0 قنوات</span>
+              </div>
+
+              <div class="search-filter-box">
+                <div class="input-search-wrapper">
+                  <span class="search-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  </span>
+                  <input type="text" id="searchInput" placeholder="بحث عن قناة أو رابط...">
+                </div>
+              </div>
+            </div>
+
+            <!-- Channels List Container -->
+            <div class="channels-list" id="channelsListContainer">
+              <!-- Injected via JavaScript -->
+            </div>
+          </section>
+        </section>
+
+        <!-- ==================== VIEW 2: LOGO EDITOR (Matching Mockup 1:1) ==================== -->
+        <section class="app-view" id="viewLogoEditor" style="display: none;">
+          <!-- Editor Header -->
+          <div class="editor-header-bar">
+            <div class="editor-title-group">
+              <h2>محرر الشعار</h2>
+              <p>إضافة شعار ثابت أو متحرك فوق الفيديو</p>
+            </div>
+            <div class="editor-header-actions">
+              <div class="editor-channel-select-wrap">
+                <label for="selectEditorChannel">القناة المستهدفة:</label>
+                <select id="selectEditorChannel">
+                  <!-- Dynamically loaded -->
+                </select>
+              </div>
+              <button type="button" class="btn btn-secondary btn-icon-only" id="btnBackToDashboard" title="رجوع للوحة الرئيسية">
+                <span style="font-size: 1.1rem; font-weight: bold;">‹</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2-Column Editor Grid Layout -->
+          <div class="editor-grid-layout">
+            <!-- Left Column: Canvas Stage & Presets -->
+            <div class="editor-canvas-column">
+              <div class="canvas-video-card">
+                <div class="canvas-badge-bar">
+                  <div class="canvas-file-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+                    <span id="lblEditorStreamName">stream_preview.mp4</span>
+                  </div>
+                  <div class="canvas-status-pill" id="lblEditorStreamStatus">
+                    <span class="live-dot"></span>
+                    <span id="txtEditorLiveStatus">بث مباشر</span>
+                  </div>
+                </div>
+
+                <!-- Interactive Stage with Snapshot & Multi-Logo Draggable Layer Boxes -->
+                <div class="canvas-stage-wrapper" id="canvasStageWrapper">
+                  <img id="canvasSnapshotImg" src="/assets/sample_match_frame.jpg" alt="Stream Frame Reference" class="canvas-bg-image">
+                  <!-- Logo boxes injected dynamically per layer -->
+                </div>
+              </div>
+
+              <!-- Ready Presets ("قوالب جاهزة") -->
+              <div class="presets-section-card">
+                <h4 class="presets-heading">قوالب جاهزة</h4>
+                <div class="presets-cards-row">
+                  <div class="preset-card active" data-preset="top_right">
+                    <div class="preset-thumbnail">
+                      <img src="/assets/sample_match_frame.jpg" alt="Top Right">
+                      <span class="preset-preview-logo pos-tr">7CAST</span>
+                    </div>
+                    <span class="preset-name">أعلى اليمين</span>
+                  </div>
+
+                  <div class="preset-card" data-preset="top_left">
+                    <div class="preset-thumbnail">
+                      <img src="/assets/sample_match_frame.jpg" alt="Top Left">
+                      <span class="preset-preview-logo pos-tl">7CAST</span>
+                    </div>
+                    <span class="preset-name">أعلى اليسار</span>
+                  </div>
+
+                  <div class="preset-card" data-preset="bottom_right">
+                    <div class="preset-thumbnail">
+                      <img src="/assets/sample_match_frame.jpg" alt="Bottom Right">
+                      <span class="preset-preview-logo pos-br">7CAST</span>
+                    </div>
+                    <span class="preset-name">أسفل اليمين</span>
+                  </div>
+
+                  <div class="preset-card" data-preset="bottom_left">
+                    <div class="preset-thumbnail">
+                      <img src="/assets/sample_match_frame.jpg" alt="Bottom Left">
+                      <span class="preset-preview-logo pos-bl">7CAST</span>
+                    </div>
+                    <span class="preset-name">أسفل اليسار</span>
+                  </div>
+
+                  <div class="preset-card" data-preset="center">
+                    <div class="preset-thumbnail">
+                      <img src="/assets/sample_match_frame.jpg" alt="Center">
+                      <span class="preset-preview-logo pos-center">7CAST</span>
+                    </div>
+                    <span class="preset-name">مركزي</span>
+                  </div>
+                </div>
+
+                <div class="presets-bottom-actions">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnResetLogoSettings">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    <span>إعادة تعيين</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnRefreshStreamSnapshot">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span>سحب لقطة حية من البث</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Inspector Controls Card -->
+            <div class="editor-inspector-column">
+              <div class="inspector-card">
+                <!-- Inspector Mode Header -->
+                <div class="inspector-chip-header">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span class="chip-title">محرر طبقات الشعارات</span>
+                </div>
+
+                <!-- Multi-Logo Layers Management Panel -->
+                <div class="logo-layers-panel">
+                  <div class="logo-layers-header">
+                    <div class="layers-title-wrap">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                      <span>طبقات الشعارات</span>
+                      <span class="layers-count-badge" id="lblLayersCount">0</span>
+                    </div>
+                    <button type="button" class="btn-add-layer" id="btnAddLogoLayer" title="إضافة شعار آخر فوق البث">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      <span>+ إضافة شعار</span>
+                    </button>
+                  </div>
+                  <div class="logo-layers-list" id="logoLayersList">
+                    <!-- Populated dynamically via JS -->
+                  </div>
+                </div>
+
+                <!-- Upload Dropzone -->
+                <div class="logo-dropzone" id="logoDropzone">
+                  <input type="file" id="inputLogoFileUpload" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" style="display: none;">
+                  <div class="dropzone-cloud-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><polyline points="12 12 12 16 12 12"/><polyline points="9 13 12 10 15 13"/></svg>
+                  </div>
+                  <div class="dropzone-title">اسحب الشعار هنا</div>
+                  <div class="dropzone-sub">أو اضغط لاختيار ملف من جهازك</div>
+                  <div class="dropzone-hint">PNG, JPG, WEBP, GIF (حتى 5MB)</div>
+                </div>
+
+                <!-- Saved Logos Library -->
+                <div class="saved-logos-section">
+                  <div class="saved-logos-header">
+                    <span>شعارات محفوظة</span>
+                    <button type="button" class="link-btn" id="btnUploadLogoTrigger">+ رفع شعار جديد</button>
+                  </div>
+                  <div class="saved-logos-grid" id="savedLogosGrid">
+                    <!-- Injected via JS -->
+                  </div>
+                </div>
+
+                <!-- Position 3x3 Grid & Numeric Inputs -->
+                <div class="inspector-section">
+                  <span class="section-label">الموضع</span>
+                  <div class="position-flex-wrap">
+                    <div class="alignment-grid-3x3" id="alignmentGrid3x3">
+                      <button type="button" class="grid-cell active" data-pos="top_right" title="أعلى اليمين"></button>
+                      <button type="button" class="grid-cell" data-pos="top_center" title="أعلى الوسط"></button>
+                      <button type="button" class="grid-cell" data-pos="top_left" title="أعلى اليسار"></button>
+                      <button type="button" class="grid-cell" data-pos="mid_right" title="وسط اليمين"></button>
+                      <button type="button" class="grid-cell" data-pos="center" title="المنتصف"></button>
+                      <button type="button" class="grid-cell" data-pos="mid_left" title="وسط اليسار"></button>
+                      <button type="button" class="grid-cell" data-pos="bot_right" title="أسفل اليمين"></button>
+                      <button type="button" class="grid-cell" data-pos="bot_center" title="أسفل الوسط"></button>
+                      <button type="button" class="grid-cell" data-pos="bot_left" title="أسفل اليسار"></button>
+                    </div>
+
+                    <div class="offset-inputs-group">
+                      <div class="offset-input-wrap">
+                        <span class="offset-lbl">المسافة من اليمين</span>
+                        <div class="input-with-unit">
+                          <input type="number" id="inputLogoX" value="40" min="0" max="1920">
+                          <span class="unit">px</span>
+                        </div>
+                      </div>
+                      <div class="offset-input-wrap">
+                        <span class="offset-lbl">المسافة من الأعلى</span>
+                        <div class="input-with-unit">
+                          <input type="number" id="inputLogoY" value="40" min="0" max="1080">
+                          <span class="unit">px</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Sliders: Size, Opacity, Rotation -->
+                <div class="inspector-sliders-group">
+                  <div class="slider-row">
+                    <span class="slider-lbl">الحجم</span>
+                    <input type="range" id="sliderLogoSize" min="40" max="500" value="180" class="custom-range">
+                    <div class="slider-val-box">
+                      <input type="number" id="inputLogoSizeNum" value="180" min="40" max="500">
+                      <span class="unit">px</span>
+                    </div>
+                  </div>
+
+                  <div class="slider-row">
+                    <span class="slider-lbl">الشفافية</span>
+                    <input type="range" id="sliderLogoOpacity" min="10" max="100" value="100" class="custom-range">
+                    <div class="slider-val-box">
+                      <input type="number" id="inputLogoOpacityNum" value="100" min="10" max="100">
+                      <span class="unit">%</span>
+                    </div>
+                  </div>
+
+                  <div class="slider-row">
+                    <span class="slider-lbl">الدوران</span>
+                    <input type="range" id="sliderLogoRotation" min="-180" max="180" value="0" class="custom-range">
+                    <div class="slider-val-box">
+                      <input type="number" id="inputLogoRotationNum" value="0" min="-180" max="180">
+                      <span class="unit">°</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Switch: Fixed throughout video -->
+                <div class="toggle-row-wrap">
+                  <label class="switch-control">
+                    <input type="checkbox" id="checkLogoFixed" checked>
+                    <span class="switch-slider"></span>
+                  </label>
+                  <span class="switch-lbl">ثابت طوال الفيديو</span>
+                </div>
+
+                <!-- Bottom Actions -->
+                <div class="inspector-bottom-actions">
+                  <button type="button" class="btn btn-secondary" id="btnSaveAsTemplate">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    <span>حفظ كقالب</span>
+                  </button>
+                  <button type="button" class="btn btn-primary btn-apply-broadcast" id="btnApplyLogoToStream">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>تطبيق كافة الشعارات على البث</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal 1: Add / Edit Channel -->
+  <div class="modal-overlay" id="channelModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="channelModalTitle">
+          <span>➕</span>
+          <span>إضافة قناة بث جديدة</span>
+        </h3>
+        <button class="modal-close-btn" data-close-modal="channelModal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Tabs Navigation: Modern Segmented Bar -->
+        <div class="tabs-nav">
+          <button type="button" class="tab-btn active" data-tab="tabSource">
+            <span>📡</span>
+            <span>المصدر والبث</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="tabHeaders">
+            <span>🛡️</span>
+            <span>الترويسات والمفاتيح</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="tabTranscode">
+            <span>⚡</span>
+            <span>الترميز والجودة</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="tabDestinations">
+            <span>🚀</span>
+            <span>مخارج البث</span>
+          </button>
+          <button type="button" class="tab-btn" data-tab="tabWatermark">
+            <span>🏷️</span>
+            <span>العلامة المائية والنص</span>
+          </button>
+        </div>
+
+        <form id="channelForm">
+          <input type="hidden" id="channelEditId" value="">
+
+          <!-- Tab 1: Source Info -->
+          <div class="tab-pane active" id="tabSource">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="inputChannelName">اسم القناة *</label>
+                <input type="text" id="inputChannelName" class="form-control" placeholder="مثال: قناة الأخبار 1" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="inputChannelGroup">المجموعة / التصنيف</label>
+                <input type="text" id="inputChannelGroup" class="form-control" placeholder="مثال: رياضة، ترفيه، عام" value="عام">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputSourceUrl">
+                <span>رابط المصدر (Source Stream URL) *</span>
+                <span class="hint">يدعم m3u8, TS, RTMP, RTSP, MP4</span>
+              </label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="url" id="inputSourceUrl" class="form-control ltr" placeholder="http://... أو rtmp://... أو https://.../live.m3u8" required>
+                <button type="button" class="btn btn-secondary" id="btnProbeSource" style="white-space: nowrap;">
+                  <span>🔍 فحص المصدر</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Probe Result Box (Hidden by default, shown upon probe) -->
+            <div class="probe-result-box" id="probeResultBox" style="display: none;">
+              <div class="probe-header">
+                <span>⚡ نتائج فحص البث المباشر (FFprobe):</span>
+              </div>
+              <div class="probe-grid" id="probeGridContent">
+                <!-- Injected via probe -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Dedicated Headers & DRM Keys -->
+          <div class="tab-pane" id="tabHeaders">
+            <!-- User-Agent -->
+            <div class="form-group">
+              <label class="form-label" for="inputUserAgent">
+                <span>ترويسة User-Agent</span>
+                <span class="hint">لتجاوز حظر السيرفرات ومزودي البث</span>
+              </label>
+              <input type="text" id="inputUserAgent" class="form-control ltr" placeholder="User-Agent...">
+              <div class="quick-buttons-row">
+                <span style="font-size: 0.75rem; color: var(--text-dim); align-self: center;">نماذج جاهزة:</span>
+                <button type="button" class="quick-pill" data-ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36">Chrome PC</button>
+                <button type="button" class="quick-pill" data-ua="VLC/3.0.18 LibVLC/3.0.18">VLC Player</button>
+                <button type="button" class="quick-pill" data-ua="AppleCoreMedia/1.0.0.19G71 (Apple TV; U; CPU OS 15_6 like Mac OS X; en_us)">Apple TV</button>
+                <button type="button" class="quick-pill" data-ua="okhttp/4.9.2 IPTV-Smarters-Pro">IPTV Smarters</button>
+                <button type="button" class="quick-pill" data-ua="Lavf/60.16.100">FFmpeg/Lavf</button>
+              </div>
+            </div>
+
+            <div class="form-section-title">
+              <span>🌐 ترويسات المصدر الأساسية (HTTP Headers)</span>
+            </div>
+
+            <!-- Referer & Origin -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="inputReferer">
+                  <span>ترويسة Referer</span>
+                  <span class="hint">رابط الصفحة المحيلة</span>
+                </label>
+                <input type="text" id="inputReferer" class="form-control ltr" placeholder="https://example.com/stream">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="inputOrigin">
+                  <span>ترويسة Origin</span>
+                  <span class="hint">نطاق المصدر المعتمد</span>
+                </label>
+                <input type="text" id="inputOrigin" class="form-control ltr" placeholder="https://example.com">
+              </div>
+            </div>
+
+            <!-- Cookie & Authorization -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="inputCookie">
+                  <span>ترويسة Cookie</span>
+                  <span class="hint">ملفات تعريف الجلسة</span>
+                </label>
+                <input type="text" id="inputCookie" class="form-control ltr" placeholder="session=abc; token=xyz">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="inputAuthorization">
+                  <span>ترويسة Authorization</span>
+                  <span class="hint">توكن الحساب أو Bearer</span>
+                </label>
+                <input type="text" id="inputAuthorization" class="form-control ltr" placeholder="Bearer eyJhbGciOi...">
+              </div>
+            </div>
+
+            <!-- X-Forwarded-For & Host -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="inputXForwardedFor">
+                  <span>ترويسة X-Forwarded-For</span>
+                  <span class="hint">لتجاوز الحظر الجغرافي للـ IP</span>
+                </label>
+                <input type="text" id="inputXForwardedFor" class="form-control ltr" placeholder="مثال: 1.1.1.1 أو 8.8.8.8">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="inputHost">
+                  <span>ترويسة Host</span>
+                  <span class="hint">السيرفر الافتراضي المستهدف</span>
+                </label>
+                <input type="text" id="inputHost" class="form-control ltr" placeholder="مثال: live.streams-hub.com">
+              </div>
+            </div>
+
+            <div class="form-section-title">
+              <span>🔐 مفاتيح التشفير والحماية (DRM / Encryption)</span>
+            </div>
+
+            <!-- DRM Decryption Key & License URL -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="inputDrmKey">
+                  <span>مفتاح فك التشفير (DRM Key / ClearKey)</span>
+                  <span class="hint">قيمة Hex Key لفك تشفير AES</span>
+                </label>
+                <input type="text" id="inputDrmKey" class="form-control ltr" placeholder="0123456789abcdef0123456789abcdef">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="inputDrmKeyUrl">
+                  <span>رابط ترخيص المفتاح (DRM Key URL)</span>
+                  <span class="hint">رابط جلب رخصة التشفير</span>
+                </label>
+                <input type="text" id="inputDrmKeyUrl" class="form-control ltr" placeholder="https://license.server.com/get_key">
+              </div>
+            </div>
+
+            <div class="form-section-title">
+              <span>📝 ترويسات إضافية مخصصة (Custom Headers)</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputCustomHeaders">
+                <span>أي ترويسات أخرى غير مذكورة أعلاه</span>
+                <span class="hint">أدخل كل ترويسة في سطر منفصل (Key: Value)</span>
+              </label>
+              <textarea id="inputCustomHeaders" class="form-control ltr" placeholder="X-Custom-Token: 12345&#10;Sec-Fetch-Mode: cors"></textarea>
+            </div>
+          </div>
+
+          <!-- Tab 3: Transcoding Settings -->
+          <div class="tab-pane" id="tabTranscode">
+            <div class="form-group">
+              <label class="form-label" for="selectTranscodeMode">
+                <span>نمط الترميز (Transcoding Mode) *</span>
+              </label>
+              <select id="selectTranscodeMode" class="form-control">
+                <option value="auto">تلقائي ذكي (Smart Auto - يرمّز H.265/غير المتوافق إلى H.264، وينسخ المتوافق مباشرة 0% CPU)</option>
+                <option value="force_h264">إجباري H.264 (Forced Transcode - إعادة ترميز كاملة لضمان أقصى توافق مع Telegram/OK/YouTube)</option>
+                <option value="direct_copy">نسخ مباشر (Direct Stream Copy - نسخ دون أي ترميز، استهلاك 0% من المعالج)</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="selectResolution">دقة الفيديو</label>
+                <select id="selectResolution" class="form-control">
+                  <option value="original">نفس دقة المصدر (الأصلية)</option>
+                  <option value="1080p">1080p Full HD (1920x1080)</option>
+                  <option value="720p">720p HD (1280x720)</option>
+                  <option value="480p">480p SD (854x480)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="selectPreset">سرعة المعالجة (CPU Preset)</label>
+                <select id="selectPreset" class="form-control">
+                  <option value="veryfast" selected>Very Fast (توازن ممتاز وموصى به)</option>
+                  <option value="ultrafast">Ultra Fast (أقل استهلاك للمعالج)</option>
+                  <option value="superfast">Super Fast (سريع جداً)</option>
+                  <option value="medium">Medium (جودة أعلى للمعالجات القوية)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="selectFpsLimit">
+                  <span>معدل الإطارات وتزامن الصوت (FPS & A/V Sync)</span>
+                  <span class="hint">موصى به لتفادي التقطيع</span>
+                </label>
+                <select id="selectFpsLimit" class="form-control">
+                  <option value="auto" selected>🎯 تلقائي 30 fps (ثبات وتزامن تام 1:1 - موصى به)</option>
+                  <option value="60">⚡ 60 fps (المصدر الكامل - يتطلب معالج قوي)</option>
+                  <option value="30">🎬 30 fps (أداء فائق وتزامن ممتاز)</option>
+                  <option value="25">🎞️ 25 fps (خفيف جداً ومستقر)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="selectVideoBitrate">معدل بت الفيديو (Video Bitrate)</label>
+                <select id="selectVideoBitrate" class="form-control">
+                  <option value="4500k" selected>4500 Kbps (ممتاز لـ 1080p)</option>
+                  <option value="6000k">6000 Kbps (جودة فائقة)</option>
+                  <option value="2500k">2500 Kbps (مناسب لـ 720p)</option>
+                  <option value="1500k">1500 Kbps (اتصال متوسط)</option>
+                  <option value="800k">800 Kbps (اتصال ضعيف)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="selectAudioBitrate">معدل بت الصوت (Audio Bitrate)</label>
+                <select id="selectAudioBitrate" class="form-control">
+                  <option value="160k" selected>160 Kbps AAC (صوت نقي قياسي)</option>
+                  <option value="128k">128 Kbps AAC</option>
+                  <option value="192k">192 Kbps AAC</option>
+                  <option value="320k">320 Kbps AAC (أعلى دقة صوتية)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer;">
+                <input type="checkbox" id="checkAutoRestart" checked style="width: 18px; height: 18px;">
+                <span style="font-weight: 600;">إعادة الاتصال التلقائي فوراً عند انقطاع البث من المصدر</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Tab 4: Multi-destinations RTMP/RTMPS -->
+          <div class="tab-pane" id="tabDestinations">
+            <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.84rem; color: #bae6fd; line-height: 1.5;">
+              <span style="font-size: 1.15rem; line-height: 1;">⚡</span>
+              <div>
+                <b style="color: #ffffff;">معالجة وتوزيع ذكي (Single-Pass Distribution):</b>
+                يتم ترميز الفيديو وتطبيق المؤثرات <b>مرة واحدة فقط في الذاكرة</b>، ثم يتم نسخه وتوزيعه بالتوازي إلى مخارج RTMP و RTMPS المتعددة دون أي معالجة مكررة، مما يوفر أقصى استقرار وأقل استهلاك للمعالج.
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <span style="font-weight: 700; font-size: 0.95rem;">قائمة مخارج البث المتعددة:</span>
+              <div class="quick-buttons-row">
+                <button type="button" class="quick-pill" id="btnAddPlatformOK">+ إضافة OK.ru</button>
+                <button type="button" class="quick-pill" id="btnAddPlatformTelegram">+ إضافة Telegram</button>
+                <button type="button" class="quick-pill" id="btnAddPlatformYouTube">+ إضافة YouTube</button>
+                <button type="button" class="quick-pill" id="btnAddPlatformFacebook">+ إضافة Facebook</button>
+                <button type="button" class="quick-pill" id="btnAddCustomDest">+ مخرج مخصص (RTMP/RTMPS)</button>
+              </div>
+            </div>
+
+            <!-- Destinations dynamic rows list -->
+            <div id="destinationsContainer" style="display: flex; flex-direction: column; gap: 0.6rem;">
+              <!-- Injected dynamically -->
+            </div>
+          </div>
+
+          <!-- Tab 5: Watermark & Animated Ticker -->
+          <div class="tab-pane" id="tabWatermark">
+            <div class="form-group" style="background: rgba(99, 102, 241, 0.08); padding: 1.1rem; border-radius: var(--radius-md); border: 1px solid rgba(99, 102, 241, 0.25);">
+              <label class="form-label" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 0.35rem;">
+                <span style="font-size: 1.05rem; font-weight: 700; color: #38bdf8;">تفعيل العلامة المائية / النص المتحرك على البث</span>
+                <input type="checkbox" id="checkWatermarkEnabled" style="width: 22px; height: 22px; accent-color: #6366f1;">
+              </label>
+              <div style="color: var(--text-muted); font-size: 0.83rem; line-height: 1.6;">
+                💡 <b>ملاحظة للأداء الفائق:</b> عند <u>تعطيل</u> العلامة المائية، يقوم النظام بتمرير البث مباشرة (Direct Copy) باستهلاك <b>0% من المعالج وبأعلى استقرار ممكن دون أي تقطيع وتزامن صوتي تام</b>. عند التفعيل، يتم دمج النص المتحرك عالي الدقة.
+              </div>
+            </div>
+
+            <!-- Banner shown when watermark is disabled -->
+            <div id="watermarkDisabledBanner" style="display: none; padding: 1.25rem; background: rgba(30, 41, 59, 0.4); border-radius: var(--radius-md); border: 1px dashed rgba(148, 163, 184, 0.25); text-align: center; color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">
+              <span style="font-size: 1.3rem; display: block; margin-bottom: 0.3rem;">⚪</span>
+              <b style="color: #f8fafc;">العلامة المائية معطلة حالياً</b>
+              <p style="margin-top: 0.25rem; font-size: 0.82rem; color: #94a3b8;">
+                سيعمل البث بنمط النسخ المباشر السريع (Direct Stream Copy) باستهلاك 0% معالج وتزامن فوري متكامل بين الصوت والصورة.
+              </p>
+            </div>
+
+            <!-- Collapsible watermark configuration fields -->
+            <div id="watermarkConfigFields">
+              <!-- Watermark Text -->
+              <div class="form-group">
+                <label class="form-label" for="inputWatermarkText">
+                  <span>نص العلامة المائية أو الشعار</span>
+                  <span class="hint">يدعم العربية، الإنجليزية، والأرقام بالكامل</span>
+                </label>
+                <textarea id="inputWatermarkText" class="form-control" rows="2" placeholder="مثال: بث مباشر عالي الدقة عبر منصة 7CAST - نرحب بكم"></textarea>
+              </div>
+
+              <div class="form-row">
+                <!-- Position & Motion -->
+                <div class="form-group">
+                  <label class="form-label" for="selectWatermarkPosition">نمط الحركة وموضع النص على الشاشة</label>
+                  <select id="selectWatermarkPosition" class="form-control">
+                    <option value="floating_2d" selected>🌊 نص عائم يتحرك بسلاسة في كامل الشاشة (Floating 2D - موصى به)</option>
+                    <option value="floating_center">💫 نص عائم متموج بنعومة في المنتصف</option>
+                    <option value="ticker_bottom">📰 شريط إخباري متحرك أسفل الشاشة</option>
+                    <option value="ticker_top">📜 شريط إخباري متحرك أعلى الشاشة</option>
+                    <option value="center_fixed">🎯 نص ثابت في منتصف الشاشة</option>
+                    <option value="corner_tr">↗️ علامة مائية - أعلى اليمين</option>
+                    <option value="corner_tl">↖️ علامة مائية - أعلى اليسار</option>
+                    <option value="corner_br">↘️ علامة مائية - أسفل اليمين</option>
+                    <option value="corner_bl">↙️ علامة مائية - أسفل اليسار</option>
+                  </select>
+                </div>
+
+                <!-- Font selection & Custom Upload -->
+                <div class="form-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <label class="form-label" for="selectWatermarkFont" style="margin-bottom: 0;">نوع الخط المستخدم</label>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnTriggerFontUpload" style="padding: 0.2rem 0.6rem; font-size: 0.78rem;">
+                      <span>📤 رفع خط جديد (TTF/OTF)</span>
+                    </button>
+                    <input type="file" id="inputFileFontUpload" accept=".ttf,.otf,.woff,.woff2" style="display: none;">
+                  </div>
+                  <select id="selectWatermarkFont" class="form-control">
+                    <option value="LamaSans-Bold.otf">Lama Sans Bold (عريض)</option>
+                    <option value="LamaSans-SemiBold.otf">Lama Sans SemiBold (شبه عريض)</option>
+                    <option value="LamaSans-Medium.otf">Lama Sans Medium (متوسط)</option>
+                    <option value="LamaSans-Regular.otf">Lama Sans Regular (عادي)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Transition Effects: Fade In & Fade Out -->
+              <div class="form-group" style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                <label class="form-label" style="font-weight: 700; color: #38bdf8; margin-bottom: 0.6rem;">✨ مؤثرات الظهور والخروج (Fade Transitions)</label>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="selectWatermarkTransition">نوع المؤثر</label>
+                    <select id="selectWatermarkTransition" class="form-control">
+                      <option value="fade" selected>🌟 تلاشي انسيابي متدرج (Fade In & Fade Out - موصى به)</option>
+                      <option value="instant">⚡ ظهور واختفاء فوري مباشر (Instant Jump)</option>
+                    </select>
+                  </div>
+                  <div class="form-group" id="groupFadeDuration">
+                    <label class="form-label" for="inputWatermarkFadeDuration">
+                      <span>مدة التلاشي: <span id="lblFadeDuration" style="color: #38bdf8; font-weight: 700;">1.5 ثانية</span></span>
+                      <span class="hint">من 0.5 إلى 4 ثوانٍ</span>
+                    </label>
+                    <input type="range" id="inputWatermarkFadeDuration" min="0.5" max="4" step="0.5" value="1.5" class="form-control" style="padding: 0.3rem;">
+                  </div>
+                </div>
+                <div class="hint" id="hintTransitionText" style="margin-top: 0.25rem;">
+                  سيتلاشى النص تدريجياً للظهور بنعومة، ويثبت طوال مدة العرض وهو يطفو، ثم يتلاشى بنعومة عند الاختفاء.
+                </div>
+              </div>
+
+              <!-- Display Timing Mode (Always or Periodic Show/Hide) -->
+              <div class="form-group" style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                <label class="form-label" style="font-weight: 700; color: #a78bfa; margin-bottom: 0.6rem;">⏱️ توقيت ظهور واختفاء النص</label>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="selectWatermarkDisplayMode">نمط الظهور</label>
+                    <select id="selectWatermarkDisplayMode" class="form-control">
+                      <option value="always">👁️ ظهور دائم طوال مدة البث</option>
+                      <option value="periodic">⏳ ظهور دوري متقطع (يظهر ويختفي تلقائياً بتوقيت)</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group" id="groupPeriodicTiming" style="display: none;">
+                    <div style="display: flex; gap: 0.75rem;">
+                      <div style="flex: 1;">
+                        <label class="form-label" for="inputWatermarkShowDuration">
+                          <span>مدة الظهور (ثوانٍ)</span>
+                        </label>
+                        <input type="number" id="inputWatermarkShowDuration" min="1" max="600" value="15" class="form-control ltr">
+                      </div>
+                      <div style="flex: 1;">
+                        <label class="form-label" for="inputWatermarkHideDuration">
+                          <span>مدة الاختفاء (ثوانٍ)</span>
+                        </label>
+                        <input type="number" id="inputWatermarkHideDuration" min="1" max="600" value="45" class="form-control ltr">
+                      </div>
+                    </div>
+                    <div class="hint" style="margin-top: 0.35rem;" id="hintPeriodicText">
+                      سيظهر النص لمدة 15 ثانية، ثم يختفي لمدة 45 ثانية، ويتكرر ذلك طوال البث.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <!-- Font size -->
+                <div class="form-group">
+                  <label class="form-label" for="inputWatermarkFontSize">
+                    <span>حجم الخط: <span id="lblFontSize" style="color: #38bdf8; font-weight: 700;">32px</span></span>
+                    <span class="hint">من 18px إلى 64px</span>
+                  </label>
+                  <input type="range" id="inputWatermarkFontSize" min="18" max="64" value="32" class="form-control" style="padding: 0.3rem;">
+                </div>
+
+                <!-- Floating Speed Control -->
+                <div class="form-group">
+                  <label class="form-label" for="inputWatermarkSpeed">
+                    <span>سرعة الحركة: <span id="lblSpeed" style="color: #38bdf8; font-weight: 700;">متوسط انسيابي (40)</span></span>
+                    <span class="hint">تحكم مباشر من البطيء الهادئ إلى السريع</span>
+                  </label>
+                  <input type="range" id="inputWatermarkSpeed" min="10" max="100" step="5" value="40" class="form-control" style="padding: 0.3rem;">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <!-- Text color -->
+                <div class="form-group">
+                  <label class="form-label" for="inputWatermarkColor">لون النص</label>
+                  <div style="display: flex; gap: 0.6rem; align-items: center;">
+                    <input type="color" id="inputWatermarkColor" value="#ffffff" style="width: 44px; height: 38px; border: none; border-radius: 8px; cursor: pointer; background: transparent;">
+                    <input type="text" id="inputWatermarkColorText" class="form-control ltr" value="#ffffff" style="max-width: 140px;">
+                  </div>
+                </div>
+
+                <!-- Shadow & Stroke -->
+                <div class="form-group" style="justify-content: center;">
+                  <label class="form-label" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin-top: 1.25rem;">
+                    <input type="checkbox" id="checkWatermarkShadow" style="width: 18px; height: 18px; accent-color: #6366f1;">
+                    <span style="font-weight: 600;">إضافة ظل ناعم خفيف (تم إلغاء الإطار الخارجي Stroke بالكامل لصفاء الخط)</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Background Box Option -->
+              <div class="form-group" style="margin-top: 0.35rem;">
+                <label class="form-label" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer;">
+                  <input type="checkbox" id="checkWatermarkBg" style="width: 18px; height: 18px; accent-color: #6366f1;">
+                  <span style="font-weight: 600;">إضافة شريط خلفية داكن خلف النص (افتراضياً بدون خلفية لصفاء الصورة)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal="channelModal">إلغاء</button>
+        <button type="button" class="btn btn-primary" id="btnSaveChannel">
+          <span>💾 حفظ القناة</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Live Video Preview (Matching Mockup) -->
+  <div class="modal-overlay" id="playerModal">
+    <div class="modal-container" style="max-width: 960px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <span>📺</span>
+          <span id="playerModalTitle">معاينة البث المباشر</span>
+        </h3>
+        <button class="modal-close-btn" data-close-modal="playerModal">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.5rem; background: #070b14;">
+        <!-- Player Container -->
+        <div id="playerContainer"></div>
+
+        <!-- Stream Info Summary under video -->
+        <div style="margin-top: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; background: rgba(15, 23, 42, 0.7); padding: 1rem 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-dim);">رابط المصدر المستخدم:</div>
+            <div id="playerModalSourceUrl" style="font-family: monospace; font-size: 0.82rem; color: #38bdf8; direction: ltr; text-align: left; word-break: break-all;">-</div>
+          </div>
+          <div id="playerModalDestinationsList" style="display: flex; gap: 0.4rem; flex-wrap: wrap;"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal="playerModal">إغلاق المعاينة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Live Terminal Logs -->
+  <div class="modal-overlay" id="logsModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <span>📋</span>
+          <span id="logsModalTitle">سجل البث الحي (Live Stream Logs)</span>
+        </h3>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button class="btn btn-sm btn-secondary" id="btnCopyLogs" title="نسخ السجل">📋 نسخ</button>
+          <button class="btn btn-sm btn-secondary" id="btnClearLogs" title="مسح">🗑️ مسح</button>
+          <button class="modal-close-btn" data-close-modal="logsModal">✕</button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="terminal-window" id="terminalWindow">
+          <!-- Live FFmpeg logs will be streamed here -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">
+          <input type="checkbox" id="checkAutoScrollLogs" checked>
+          <span>التمرير التلقائي لأسفل السجل</span>
+        </label>
+        <button type="button" class="btn btn-secondary" data-close-modal="logsModal">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Backup & Restore -->
+  <div class="modal-overlay" id="backupModal">
+    <div class="modal-container" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <span>💾</span>
+          <span>النسخ الاحتياطي واستعادة القنوات</span>
+        </h3>
+        <button class="modal-close-btn" data-close-modal="backupModal">✕</button>
+      </div>
+
+      <div class="modal-body" style="gap: 1.5rem;">
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <h4 style="font-size: 1rem; margin-bottom: 0.4rem; color: #38bdf8;">تصدير نسخة احتياطية (Export JSON)</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            تنزيل ملف JSON يحتوي على كافة القنوات ومخارج البث والترويسات لحفظها.
+          </p>
+          <a href="/api/system/export" class="btn btn-secondary" download="7cast-backup.json" style="width: 100%;">
+            <span>📥 تحميل النسخة الاحتياطية</span>
+          </a>
+        </div>
+
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <h4 style="font-size: 1rem; margin-bottom: 0.4rem; color: #10b981;">استيراد واستعادة (Import JSON)</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            استعادة قائمة القنوات من ملف نسخة احتياطية سابق.
+          </p>
+          <input type="file" id="inputImportFile" accept=".json" style="display: none;">
+          <button type="button" class="btn btn-secondary" id="btnTriggerImport" style="width: 100%;">
+            <span>📤 اختيار ملف JSON واستعادة القنوات</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal="backupModal">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- App Script -->
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

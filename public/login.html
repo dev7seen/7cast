@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>7CAST - تسجيل الدخول وإعداد النظام</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/7cast-logo-svg.svg">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+      background: radial-gradient(circle at 50% 20%, rgba(225, 29, 72, 0.12) 0%, transparent 60%),
+                  radial-gradient(circle at 10% 80%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+                  #070a13;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(15, 21, 37, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 2.5rem 2.2rem;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 30px rgba(225, 29, 72, 0.15);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #e11d48, #f43f5e, transparent);
+    }
+
+    .login-logo-wrap {
+      width: 170px;
+      margin: 0 auto 1.4rem;
+      display: block;
+    }
+
+    .login-logo-wrap svg {
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 4px 18px rgba(225, 29, 72, 0.45));
+    }
+
+    .login-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .login-desc {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      margin-bottom: 1.75rem;
+      line-height: 1.5;
+    }
+
+    .mode-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(225, 29, 72, 0.15);
+      border: 1px solid rgba(225, 29, 72, 0.4);
+      color: #fb7185;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 1.25rem;
+      text-align: right;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 0.45rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      background: rgba(10, 14, 26, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 0.72rem 2.8rem 0.72rem 1rem;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .input-wrapper input:focus {
+      border-color: #e11d48;
+      box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25);
+      background: rgba(15, 21, 38, 0.95);
+    }
+
+    .input-icon-start {
+      position: absolute;
+      right: 12px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .toggle-pass-btn {
+      position: absolute;
+      left: 10px;
+      background: transparent;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: color 0.15s ease;
+    }
+
+    .toggle-pass-btn:hover {
+      color: #ffffff;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.85rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 18px rgba(225, 29, 72, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(225, 29, 72, 0.55);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .alert-box {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #f87171;
+      padding: 0.65rem 0.9rem;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      margin-bottom: 1.25rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: right;
+    }
+
+    .alert-box.success {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+
+    .security-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      margin-top: 2rem;
+      font-size: 0.76rem;
+      color: #64748b;
+    }
+
+    .pass-strength-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin-top: 0.45rem;
+      overflow: hidden;
+      display: none;
+    }
+
+    .pass-strength-fill {
+      height: 100%;
+      width: 0%;
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-logo-wrap">
+        <svg viewBox="0 0 1486 527" width="100%" height="100%">
+          <defs>
+            <linearGradient id="loginLogoRed" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff2a5f"/>
+              <stop offset="100%" stop-color="#be123c"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#loginLogoRed)" d="m307.27 8.57c-6.04 30.53-6.68 27.67 8.27 29.9 24.17 3.82 43.89 11.77 67.11 27.35 27.36 18.45 41.04 34.36 57.9 68.71l12.72 25.76 14.95-5.08c8.27-2.87 15.59-6.05 16.86-7 2.54-2.87-10.5-36.58-20.04-52.17-32.13-51.85-82.07-84.93-144.41-95.11-10.82-1.9-11.77-1.59-13.36 7.64z"/>
+          <path fill="url(#loginLogoRed)" d="m294.55 87.14c-3.82 23.22-2.87 25.44 9.86 27.99 35.62 6.68 63.93 33.71 73.79 70.93l3.82 13.68 13.04-11.45c7.32-6.05 14.31-11.14 15.9-11.14 4.46 0 2.87-7.31-5.4-25.13-18.45-39.44-54.08-66.79-97.34-74.75-11.45-1.9-11.45-1.9-13.67 9.87z"/>
+          <path fill="url(#loginLogoRed)" d="m20.99 193.06c-11.45 20.67-20.99 38.8-20.99 39.76 0 0.95 53.76 1.59 119.28 1.59 65.53 0 119.28 0.63 119.28 1.27 0 1.27-20.99 41.03-94.79 178.45-29.9 55.98-55.34 104.33-56.62 107.19-1.9 5.09 0.96 5.73 30.86 5.41 18.13 0 39.44-1.27 47.08-2.23l14.31-2.23 29.9-55.66c16.22-30.54 45.17-84.29 64.25-119.28 67.12-124.05 67.75-125.33 66.16-142.19-0.95-9.54-4.77-19.72-10.18-27.67-15.9-22.9-14.31-22.58-158.72-22.58h-128.82z"/>
+          <path fill="#ffffff" d="m390.61 238c-26.45 7.03-46.98 23.35-59.08 47.26-8.16 16.32-11.82 55.42-10.13 110.56 1.41 39.67 2.53 50.92 7.6 64.14 11.25 29.82 39.66 50.64 75.96 55.71 10.12 1.4 61.32 2.25 113.93 1.97l95.65-0.85 0.84-27.57 0.85-27.29h-102.12c-96.21 0-102.68-0.28-111.12-5.62-17.45-10.41-19.13-16.04-20.26-66.96-1.12-59.92 0.56-74.27 11.25-86.08 12.66-14.63 21.95-15.76 127.44-15.76h94.53v-26.72-26.73l-106.06 0.28c-74.83 0-110.28 1.13-119.28 3.66z"/>
+          <path fill="#ffffff" d="m632.22 267.72v26.1l36.75 2.06c19.92 1.38 71.09 2.41 113.33 2.41 76.59 0 76.93 0 85.18 8.24 4.46 4.46 9.27 14.08 10.64 21.29 4.47 24.04 7.22 23.36-106.12 25.42l-101.31 1.71-15.11 10.31c-28.51 20.26-38.47 47.39-30.91 84.14 5.15 23.35 18.2 40.53 40.52 51.52 16.49 8.24 18.55 8.58 94.1 8.58 85.18 0 87.58-0.69 108.19-22.32l10.3-10.99 1.72 16.83 1.71 16.48h32.63 32.63v-99.6c0-108.86-1.03-116.42-19.92-137.71-5.5-6.87-16.83-15.46-24.39-19.58-13.73-7.21-18.54-7.56-142.18-9.27l-127.76-1.72zm245.56 136.69c3.43 15.11-4.12 37.09-14.42 44.3-8.25 5.15-18.55 5.84-82.09 5.84-66.62 0-73.49-0.69-80.02-6.53-13.05-12.02-8.58-43.61 7.56-50.14 4.12-1.71 43.27-3.09 87.23-3.09l79.34-0.34z"/>
+          <path fill="#ffffff" d="m1024.87 242.64c-21.63 3.77-42.58 15.79-55.63 31.94-8.93 11.33-10.65 16.48-11.68 37.09-1.72 28.5 4.81 49.11 20.61 64.56 18.88 18.2 33.31 20.95 116.08 20.95 76.93 0 93.41 2.41 99.59 13.74 5.5 10.65 3.78 27.13-3.43 34.34-6.53 6.53-11.33 6.87-118.49 6.87h-111.61v29.54 29.19l122.95-1.03c109.21-1.03 123.98-1.72 136.34-7.21 16.14-7.22 31.25-20.61 38.81-35.03 8.24-15.11 7.9-61.14-0.69-79.68-6.52-15.11-24.72-29.88-42.24-34-5.15-1.37-47.39-2.75-93.07-2.75l-83.8-0.34-6.87-8.59c-8.24-10.3-6.87-33.31 2.75-40.18 4.46-3.43 29.53-4.81 97.19-5.15 50.14-0.34 96.85-1.03 103.38-1.03l12.02-0.35 1.03-28.16 1.03-28.16-104.06 0.34c-57.36 0.35-111.28 1.72-120.21 3.1z"/>
+          <path fill="#ffffff" d="m1321.01 202.06v36.06h-16.83c-9.27 0-21.64 1.03-27.48 2.06l-10.64 2.06v25.42 25.07l26.79 1.03 26.44 1.03 1.72 77.27c1.71 84.83 3.43 92.39 25.41 114.02 17.52 17.52 29.54 20.61 87.23 22.67l52.21 1.72v-29.88-29.54h-36.06c-39.16 0-50.49-3.09-56.33-16.14-2.4-5.15-3.78-33.31-3.78-74.87v-66.97h48.09 48.08v-27.47-27.48h-48.08-48.09v-36.06-36.06h-34.34-34.34z"/>
+        </svg>
+      </div>
+
+      <div id="firstRunBadge" class="mode-badge" style="display: none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span>الإعداد الأولي للنظام</span>
+      </div>
+
+      <h1 class="login-title" id="pageTitle">تسجيل الدخول</h1>
+      <p class="login-desc" id="pageDesc">أدخل كلمة مرور اللوحة للمتابعة إلى مركز التحكم</p>
+
+      <div class="alert-box" id="alertBox">
+        <svg id="alertIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="alertText">حدث خطأ</span>
+      </div>
+
+      <form id="authForm">
+        <div class="form-group">
+          <label for="passwordInput" id="lblPassword">كلمة المرور</label>
+          <div class="input-wrapper">
+            <span class="input-icon-start">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input 
+              type="password" 
+              id="passwordInput" 
+              placeholder="••••••••••••" 
+              required 
+              autocomplete="current-password"
+              autofocus
+            >
+            <button type="button" class="toggle-pass-btn" data-target="passwordInput" title="إظهار / إخفاء">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="pass-strength-bar" id="strengthBar">
+            <div class="pass-strength-fill" id="strengthFill"></div>
+          </div>
+        </div>
+
+        <!-- Confirm password field for first-run setup -->
+        <div class="form-group" id="confirmPassGroup" style="display: none;">
+          <label for="confirmPasswordInput">تأكيد كلمة المرور</label>
+          <div class="input-wrapper">
+            <span class="input-icon-start">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            </span>
+            <input 
+              type="password" 
+              id="confirmPasswordInput" 
+              placeholder="••••••••••••" 
+              autocomplete="new-password"
+            >
+            <button type="button" class="toggle-pass-btn" data-target="confirmPasswordInput" title="إظهار / إخفاء">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btnSubmit">
+          <span id="btnSubmitText">دخول اللوحة</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </form>
+
+      <div class="security-footer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>محمي بنظام التشفير الآمن 7CAST Enterprise v1.0</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isFirstRunMode = false;
+
+    const authForm = document.getElementById('authForm');
+    const passwordInput = document.getElementById('passwordInput');
+    const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+    const confirmPassGroup = document.getElementById('confirmPassGroup');
+    const firstRunBadge = document.getElementById('firstRunBadge');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageDesc = document.getElementById('pageDesc');
+    const lblPassword = document.getElementById('lblPassword');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const btnSubmitText = document.getElementById('btnSubmitText');
+    const alertBox = document.getElementById('alertBox');
+    const alertText = document.getElementById('alertText');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthFill = document.getElementById('strengthFill');
+
+    // Password visibility toggle
+    document.querySelectorAll('.toggle-pass-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        const isPass = input.type === 'password';
+        input.type = isPass ? 'text' : 'password';
+        btn.innerHTML = isPass
+          ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+          : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+      });
+    });
+
+    // Check auth status on load
+    async function checkAuthStatus() {
+      try {
+        const res = await fetch('/api/auth/status');
+        const data = await res.json();
+        if (data.isFirstRun) {
+          enableFirstRunMode();
+        }
+      } catch (e) {
+        console.warn('Status check failed:', e);
+      }
+    }
+
+    function enableFirstRunMode() {
+      isFirstRunMode = true;
+      firstRunBadge.style.display = 'inline-flex';
+      pageTitle.textContent = 'تعيين كلمة سر المدير';
+      pageDesc.textContent = 'مرحباً بك في 7CAST! قم بإنشاء كلمة مرور رئيسية لحماية لوحة التحكم';
+      lblPassword.textContent = 'كلمة المرور الجديدة';
+      confirmPassGroup.style.display = 'block';
+      confirmPasswordInput.required = true;
+      strengthBar.style.display = 'block';
+      btnSubmitText.textContent = 'حفظ وتفعيل اللوحة';
+      passwordInput.autocomplete = 'new-password';
+    }
+
+    // Password strength indicator
+    passwordInput.addEventListener('input', () => {
+      if (!isFirstRunMode) return;
+      const val = passwordInput.value;
+      let score = 0;
+      if (val.length >= 6) score += 30;
+      if (val.length >= 10) score += 20;
+      if (/[A-Z]/.test(val)) score += 20;
+      if (/[0-9]/.test(val)) score += 15;
+      if (/[^A-Za-z0-9]/.test(val)) score += 15;
+
+      strengthFill.style.width = score + '%';
+      if (score < 40) {
+        strengthFill.style.background = '#ef4444';
+      } else if (score < 75) {
+        strengthFill.style.background = '#f59e0b';
+      } else {
+        strengthFill.style.background = '#10b981';
+      }
+    });
+
+    function showAlert(msg, isSuccess = false) {
+      alertText.textContent = msg;
+      alertBox.className = 'alert-box' + (isSuccess ? ' success' : '');
+      alertBox.style.display = 'flex';
+    }
+
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const pass = passwordInput.value.trim();
+
+      if (isFirstRunMode) {
+        const confirmPass = confirmPasswordInput.value.trim();
+        if (pass.length < 4) {
+          showAlert('كلمة المرور يجب ألا تقل عن 4 خانات');
+          return;
+        }
+        if (pass !== confirmPass) {
+          showAlert('كلمتا المرور غير متطابقتين!');
+          confirmPasswordInput.focus();
+          return;
+        }
+
+        btnSubmit.disabled = true;
+        btnSubmitText.textContent = 'جاري التثبيت...';
+
+        try {
+          const res = await fetch('/api/auth/setup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pass })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showAlert('تم تعيين كلمة المرور بنجاح! جاري الدخول...', true);
+            if (data.token) localStorage.setItem('7cast_token', data.token);
+            setTimeout(() => { window.location.href = '/'; }, 1000);
+          } else {
+            showAlert(data.error || 'فشل إعداد كلمة المرور');
+            btnSubmit.disabled = false;
+            btnSubmitText.textContent = 'حفظ وتفعيل اللوحة';
+          }
+        } catch (err) {
+          showAlert('تعذر الاتصال بالخادم');
+          btnSubmit.disabled = false;
+          btnSubmitText.textContent = 'حفظ وتفعيل اللوحة';
+        }
+
+      } else {
+        // Standard login
+        btnSubmit.disabled = true;
+        btnSubmitText.textContent = 'جاري التحقق...';
+
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pass })
+          });
+          const data = await res.json();
+          if (data.success) {
+            if (data.token) localStorage.setItem('7cast_token', data.token);
+            window.location.href = '/';
+          } else if (data.requireSetup) {
+            enableFirstRunMode();
+            btnSubmit.disabled = false;
+          } else {
+            showAlert(data.error || 'كلمة المرور غير صحيحة!');
+            btnSubmit.disabled = false;
+            btnSubmitText.textContent = 'دخول اللوحة';
+            passwordInput.focus();
+            passwordInput.select();
+          }
+        } catch (err) {
+          showAlert('تعذر الاتصال بالخادم');
+          btnSubmit.disabled = false;
+          btnSubmitText.textContent = 'دخول اللوحة';
+        }
+      }
+    });
+
+    checkAuthStatus();
+  </script>
+</body>
+</html>
