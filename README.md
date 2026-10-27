@@ -162,3 +162,6 @@ pm2 restart 7cast
 
 تم بناء وتطوير المشروع بواسطة **[@dev7seen](https://github.com/dev7seen)** تحت رخصة **MIT License**.
 متاح ومجاني للاستخدام الشخصي والتجاري المفتوح.
+
+
+برمجة وتطوير **[شركة 7SEEN](https://t.me/hczs7)** تحت رخصة **MIT License**.
